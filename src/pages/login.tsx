@@ -14,12 +14,12 @@ const LoginPage = () => {
     const response = await fetch("http://localhost:8000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      // フィールド名をuser_idに変更
       body: JSON.stringify({ user_id: userIdInt, password }),
     });
     if (response.ok) {
-      const { token } = await response.json();
-      auth.login(token);
+      const data = await response.json();
+      console.log("Login response:", data); // この行を追加
+      auth.login(data.access_token);
     } else {
       console.error("ログイン失敗");
     }

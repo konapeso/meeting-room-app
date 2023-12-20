@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // トークンをチェックしてログイン状態を更新
     const token = localStorage.getItem("token");
+    console.log("Token:", token);
     if (token) {
       setIsLoggedIn(true);
     } else {
@@ -31,9 +32,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (token: string) => {
+    console.log("Saving token:", token);
     localStorage.setItem("token", token);
     setIsLoggedIn(true);
-    router.push("/rooms"); // ログイン後のリダイレクト先
+    router.push("/rooms");
   };
 
   const logout = () => {
