@@ -2,6 +2,7 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Select, { ActionMeta, MultiValue } from "react-select";
+import { getCurrentUser } from "../../utils/api";
 
 // Roomの型定義
 interface Room {
@@ -30,6 +31,12 @@ interface User {
 interface OptionType {
   value: number;
   label: string;
+}
+
+interface Participant {
+  user_id?: number | null;
+  is_guest: boolean;
+  guest_email?: string | null;
 }
 
 function RoomDetailsPage() {
@@ -161,12 +168,56 @@ function RoomDetailsPage() {
       setErrorMessage(error);
       return;
     }
+    // ログインしているユーザーの情報を取得
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      setErrorMessage("ログインユーザーの情報を取得できませんでした");
+      return;
+    }
+
+    // 予約データを構築
+    const bookingData = {
+      user_id: currentUser.user_id,
+      room_id: Number(id),
+      booked_num: selectedParticipants.length,
+      start_datetime: new Date(`${date}T${startTime}`).toISOString(),
+      end_datetime: new Date(`${date}T${endTime}`).toISOString(),
+      participants: selectedParticipants.map((p) => ({
+        user_id: p.value,
+        is_guest: false,
+        guest_email: null,
+      })),
+    };
+
     // ゲストルームの場合、ゲストのメールアドレスを参加者リストに追加
     if (room && room.room_type === "ゲストルーム" && guestEmail) {
-      // ゲストメールアドレスを処理するコード
+      bookingData.participants.push({
+        user_id: null, // user_id をオプショナルにする
+        is_guest: true,
+        guest_email: guestEmail,
+      });
     }
-    // 予約処理
-    router.push("/reservation-complete");
+
+    // 予約データをサーバーに送信
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/bookings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        throw new Error("予約に失敗しました");
+      }
+
+      // 予約成功処理...
+      router.push("/reserved");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("予約に失敗しました");
+    }
   };
 
   return (
@@ -199,7 +250,7 @@ function RoomDetailsPage() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="border rounded p-2"
+              className="border rounded p-2 text-black"
             />
           </div>
           <div>
@@ -211,7 +262,7 @@ function RoomDetailsPage() {
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="border rounded p-2"
+              className="border rounded p-2 text-black"
             />
           </div>
           <div>
@@ -223,7 +274,7 @@ function RoomDetailsPage() {
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="border rounded p-2"
+              className="border rounded p-2 text-black"
             />
           </div>
           <div className="mb-4">
@@ -251,7 +302,7 @@ function RoomDetailsPage() {
                 type="email"
                 value={guestEmail}
                 onChange={handleGuestEmailChange}
-                className="border rounded p-2"
+                className="border rounded p-2  text-black"
               />
             </div>
           )}
