@@ -289,7 +289,7 @@ function RoomDetailsPage() {
                 label: user.user_name,
               }))}
               onChange={handleParticipantsChange}
-              className="text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              className="text-base text-black border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             />
           </div>
           {room && room.room_type === "ゲストルーム" && (

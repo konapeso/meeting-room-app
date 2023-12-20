@@ -1,5 +1,7 @@
 // src/pages/rooms.tsx
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "../context/AuthContext";
 // import Image from "next/image";
 import Link from "next/link";
 
@@ -13,8 +15,13 @@ interface Room {
 
 const RoomsPage = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const auth = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
+    if (!auth.isLoggedIn) {
+      router.push("/login");
+    }
     const fetchRooms = async () => {
       const response = await fetch("http://localhost:8000/rooms");
       if (response.ok) {
@@ -24,11 +31,13 @@ const RoomsPage = () => {
     };
 
     fetchRooms();
-  }, []);
+  }, [auth.isLoggedIn, router]);
 
   return (
     <div className="p-10 mx-auto h-screen bg-gray-100">
-      <h1 className="text-2xl font-bold text-center mb-6">会議室一覧</h1>
+      <h1 className="text-2xl font-bold text-center mb-6 text-black">
+        会議室一覧
+      </h1>
       <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {rooms.map((room) => (
           <li
@@ -36,9 +45,11 @@ const RoomsPage = () => {
             className="border rounded shadow p-4 hover:shadow-lg bg-white"
           >
             <Link href={`/rooms/${room.room_id}`}>
-              <h2 className="text-xl font-semibold mb-2">{room.room_name}</h2>
-              <p className="mb-1">定員: {room.capacity}</p>
-              <p className="mb-1">タイプ: {room.room_type}</p>
+              <h2 className="text-xl font-semibold mb-2 text-black">
+                {room.room_name}
+              </h2>
+              <p className="mb-1 text-black">定員: {room.capacity}</p>
+              <p className="mb-1 text-black">タイプ: {room.room_type}</p>
               {/* 画像の表示が必要な場合は以下のコメントを解除 */}
               {/* <img
                   src={`/images/${room.room_image}`}
