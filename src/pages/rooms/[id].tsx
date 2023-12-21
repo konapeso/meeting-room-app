@@ -112,6 +112,7 @@ function RoomDetailsPage() {
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
+        timeZone: "Asia/Tokyo",
       });
     };
 
@@ -124,10 +125,6 @@ function RoomDetailsPage() {
     // roomがnullでないことを確認
     if (!room) {
       return "部屋の情報がありません。";
-    }
-    // 定員を超える予約
-    if (Number(bookings.length) >= room.capacity) {
-      return "定員を超える予約はできません。";
     }
 
     // 開始時刻 >= 終了時刻のチェック
@@ -177,7 +174,15 @@ function RoomDetailsPage() {
     // ログインしているユーザーの情報を取得
     const currentUser = await getCurrentUser();
     if (!currentUser) {
-      setErrorMessage("ログインユーザーの情報を取得できませんでした");
+      setErrorMessage("ログインしなおしてください。");
+      return;
+    }
+
+    // 定員チェック
+    const totalParticipants =
+      selectedParticipants.length + (guestEmail ? 1 : 0); // ゲストメールがあれば参加者に含める
+    if (room && totalParticipants > room.capacity) {
+      setErrorMessage("定員を超える予約はできません。");
       return;
     }
 
@@ -192,8 +197,8 @@ function RoomDetailsPage() {
       user_id: currentUser.user_id,
       room_id: Number(id),
       booked_num: selectedParticipants.length,
-      start_datetime: new Date(`${date}T${startTime}`).toISOString(),
-      end_datetime: new Date(`${date}T${endTime}`).toISOString(),
+      start_datetime: `${date}T${startTime}`,
+      end_datetime: `${date}T${endTime}`,
       participants: selectedParticipants.map((p) => ({
         user_id: p.value,
         is_guest: false,
@@ -221,7 +226,13 @@ function RoomDetailsPage() {
       });
 
       if (!response.ok) {
-        throw new Error("予約に失敗しました");
+        // 404エラーを特定してエラーメッセージを表示
+        if (response.status === 404) {
+          setErrorMessage("指定の時間にはすでに予約が入っています。");
+        } else {
+          setErrorMessage("予約に失敗しました");
+        }
+        return;
       }
 
       // 予約成功処理...
@@ -233,27 +244,42 @@ function RoomDetailsPage() {
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="w-1/2 p-4">
-        <h1 className="text-2xl font-bold">{room?.room_name}</h1>
-        <p>定員: {room?.capacity}</p>
-        <p>タイプ: {room?.room_type}</p>
-        {/* 画像を表示する場合は以下のコメントを解除 */}
-        {/* <img src={room?.room_image} alt={room?.room_name} className="w-full h-auto" /> */}
-        <h2 className="text-xl font-bold mt-4">予約状況</h2>
-        <ul>
-          {bookings.map((booking) => (
-            <li key={booking.booking_id}>
-              {booking.start_datetime} - {booking.end_datetime}
-            </li>
-          ))}
-        </ul>
+    <div className="flex flex-wrap h-screen bg-gray-100">
+      <div className="w-full lg:w-1/2 p-4">
+        <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+          <h1 className="text-2xl font-bold mb-2 text-black">
+            {room?.room_name}
+          </h1>
+          <p className="mb-4 text-black">定員: {room?.capacity}</p>
+          <p className="mb-4 text-black">タイプ: {room?.room_type}</p>
+          <h2 className="text-xl font-bold mt-4 mb-4 text-black">予約状況</h2>
+          <div className="overflow-auto">
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr>
+                  <th className="py-2 border-b border-gray-200 text-black">
+                    予約時間
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => (
+                  <tr key={booking.booking_id}>
+                    <td className="py-2 border-b border-gray-200 text-black">
+                      {booking.start_datetime} - {booking.end_datetime}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <div className="w-1/2 p-4">
-        <h2 className="text-xl font-bold">予約</h2>
+        <h2 className="text-xl font-bold text-black">予約</h2>
         <form onSubmit={handleReserve} className="space-y-4">
           <div>
-            <label htmlFor="date" className="block">
+            <label htmlFor="date" className="block text-black">
               日付
             </label>
             <input
@@ -265,7 +291,7 @@ function RoomDetailsPage() {
             />
           </div>
           <div>
-            <label htmlFor="startTime" className="block">
+            <label htmlFor="startTime" className="block text-black">
               開始時刻
             </label>
             <input
@@ -277,7 +303,7 @@ function RoomDetailsPage() {
             />
           </div>
           <div>
-            <label htmlFor="endTime" className="block">
+            <label htmlFor="endTime" className="block text-black">
               終了時刻
             </label>
             <input
@@ -289,7 +315,7 @@ function RoomDetailsPage() {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="participants" className="block mb-2">
+            <label htmlFor="participants" className="block mb-2 text-black">
               参加者を選択
             </label>
             <Select
@@ -305,7 +331,7 @@ function RoomDetailsPage() {
           </div>
           {room && room.room_type === "ゲストルーム" && (
             <div>
-              <label htmlFor="guestEmail" className="block">
+              <label htmlFor="guestEmail" className="block text-black">
                 ゲストのメールアドレス
               </label>
               <input
