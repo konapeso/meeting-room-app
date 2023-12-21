@@ -25,6 +25,7 @@ interface Booking {
 interface User {
   user_id: number;
   user_name: string;
+  is_executive: boolean;
 }
 
 // オプションの型を定義
@@ -154,6 +155,11 @@ function RoomDetailsPage() {
     setSelectedParticipants(selectedOptions ? [...selectedOptions] : []);
   };
 
+  // 役員用の部屋の場合、is_executive が true のユーザーのみをフィルタリング
+  const executiveUsers = users.filter((user) => {
+    return room?.room_type !== "役員用" || user.is_executive === true;
+  });
+
   // ゲストメールアドレス
   const handleGuestEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGuestEmail(e.target.value);
@@ -172,6 +178,12 @@ function RoomDetailsPage() {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
       setErrorMessage("ログインユーザーの情報を取得できませんでした");
+      return;
+    }
+
+    // 役員用の部屋かつ is_executive が false の場合は予約を許可しない
+    if (room?.room_type === "役員用" && currentUser.is_executive === false) {
+      setErrorMessage("役員用の部屋は予約できません。");
       return;
     }
 
@@ -239,7 +251,6 @@ function RoomDetailsPage() {
       </div>
       <div className="w-1/2 p-4">
         <h2 className="text-xl font-bold">予約</h2>
-        {errorMessage && <div className="text-red-500">{errorMessage}</div>}
         <form onSubmit={handleReserve} className="space-y-4">
           <div>
             <label htmlFor="date" className="block">
@@ -284,7 +295,7 @@ function RoomDetailsPage() {
             <Select
               id="participants"
               isMulti
-              options={users.map((user) => ({
+              options={executiveUsers.map((user) => ({
                 value: user.user_id,
                 label: user.user_name,
               }))}
@@ -306,6 +317,7 @@ function RoomDetailsPage() {
               />
             </div>
           )}
+          {errorMessage && <div className="text-red-500">{errorMessage}</div>}
           <button type="submit" className="bg-blue-500 text-white rounded p-2">
             予約する
           </button>
