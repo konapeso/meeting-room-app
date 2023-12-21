@@ -19,12 +19,19 @@ const Header = () => {
             会議室予約
           </Link>
         </div>
-        <div>
-          {auth.isLoggedIn ? ( // ログイン状態に応じてログアウトボタンを表示
-            <button onClick={auth.logout} className="text-white">
-              ログアウト
-            </button>
-          ) : null}
+        <div className="flex">
+          <div className="pr-5">
+            <Link href="/" className="text-white">
+              予約一覧
+            </Link>
+          </div>
+          <div>
+            {auth.isLoggedIn ? ( // ログイン状態に応じてログアウトボタンを表示
+              <button onClick={auth.logout} className="text-white">
+                ログアウト
+              </button>
+            ) : null}
+          </div>
         </div>
       </nav>
     </header>
