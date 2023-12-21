@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
-// import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Room {
@@ -50,13 +50,14 @@ const RoomsPage = () => {
               </h2>
               <p className="mb-1 text-black">定員: {room.capacity}</p>
               <p className="mb-1 text-black">タイプ: {room.room_type}</p>
-              {/* 画像の表示が必要な場合は以下のコメントを解除 */}
-              {/* <img
-                  src={`/images/${room.room_image}`}
-                  alt={`会議室 ${room.room_name}`}
-                  className="w-full h-auto object-cover"
-                /> */}
-              {/* <p>{room.room_image}</p> */}
+              <Image
+                src={`${room.room_image}`}
+                alt={`会議室 ${room.room_name}`}
+                className="w-full h-auto object-cover"
+                width={640}
+                height={427}
+                layout="responsive"
+              />
             </Link>
           </li>
         ))}
