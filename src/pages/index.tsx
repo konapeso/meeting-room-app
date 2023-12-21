@@ -154,7 +154,7 @@ function BookingsPage() {
 
   return (
     <div className="container mx-auto mt-8">
-      <h1 className="text-2xl font-bold mb-4">予約一覧</h1>
+      <h1 className="text-2xl font-bold mb-6">予約一覧</h1>
       <ul>
         {bookings.map((booking) => {
           const now = new Date();
@@ -167,41 +167,54 @@ function BookingsPage() {
           return (
             <li
               key={booking.booking_id}
-              className="border-b border-gray-300 py-2"
+              className="border-b border-gray-300 py-4 mb-4 bg-white shadow-sm rounded-md"
             >
-              <p>予約ID: {booking.booking_id}</p>
-              <p>予約者: {booking.user?.user_name || "不明"}</p>
-              <p>部屋名: {booking.room?.room_name || "不明"}</p>
-              <p>開始時刻: {formatDate(booking.start_datetime)}</p>
-              <p>終了時刻: {formatDate(booking.end_datetime)}</p>
-              <p>参加者: {booking.participants?.join(", ") || "なし"}</p>
-              {isPastBooking && (
-                <button
-                  onClick={() =>
-                    handleDeleteBooking(
-                      booking.booking_id,
-                      booking.end_datetime
-                    )
-                  }
-                  className="text-white font-bold py-2 px-4 rounded bg-red-500 hover:bg-red-600 mt-2"
-                >
-                  削除
-                </button>
-              )}
-              {/* キャンセルボタン表示ロジック */}
-              {!isPastBooking && !isWithin30Minutes && (
-                <button
-                  onClick={() =>
-                    handleCancelBooking(
-                      booking.booking_id,
-                      booking.start_datetime
-                    )
-                  }
-                  className="text-white font-bold py-2 px-4 rounded bg-blue-500 hover:bg-blue-600 mt-2"
-                >
-                  キャンセル
-                </button>
-              )}
+              <div className="px-4">
+                <p className="font-semibold text-lg text-black">
+                  予約ID: {booking.booking_id}
+                </p>
+                <p className="text-black">
+                  予約者: {booking.user?.user_name || "不明"}
+                </p>
+                <p className="text-black">
+                  部屋名: {booking.room?.room_name || "不明"}
+                </p>
+                <p className="text-black">
+                  開始時刻: {formatDate(booking.start_datetime)}
+                </p>
+                <p className="text-black">
+                  終了時刻: {formatDate(booking.end_datetime)}
+                </p>
+                <p className="text-black">
+                  参加者: {booking.participants?.join(", ") || "なし"}
+                </p>
+                {isPastBooking && (
+                  <button
+                    onClick={() =>
+                      handleDeleteBooking(
+                        booking.booking_id,
+                        booking.end_datetime
+                      )
+                    }
+                    className="text-white font-bold py-2 px-4 rounded bg-red-500 hover:bg-red-600 mt-2"
+                  >
+                    削除
+                  </button>
+                )}
+                {!isPastBooking && !isWithin30Minutes && (
+                  <button
+                    onClick={() =>
+                      handleCancelBooking(
+                        booking.booking_id,
+                        booking.start_datetime
+                      )
+                    }
+                    className="text-white font-bold py-2 px-4 rounded bg-blue-500 hover:bg-blue-600 mt-2"
+                  >
+                    キャンセル
+                  </button>
+                )}
+              </div>
             </li>
           );
         })}
