@@ -18,7 +18,7 @@ const LoginPage = () => {
     });
     if (response.ok) {
       const data = await response.json();
-      console.log("Login response:", data); // この行を追加
+      console.log("Login response:", data);
       auth.login(data.access_token);
     } else {
       console.error("ログイン失敗");
