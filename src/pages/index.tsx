@@ -44,6 +44,13 @@ function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   useEffect(() => {
+    // ログイン状態のチェック
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // ログインしていない場合はログインページにリダイレクト
+      router.push("/login");
+      return;
+    }
     const fetchBookings = async () => {
       try {
         const [bookingsData, usersData, roomsData] = await Promise.all([
@@ -84,7 +91,7 @@ function BookingsPage() {
     };
 
     fetchBookings();
-  }, []);
+  }, [router]);
 
   // 日時をフォーマットするヘルパー関数
   const formatDate = (isoDate: string) => {
@@ -98,6 +105,29 @@ function BookingsPage() {
     });
   };
 
+  const handleDeleteBooking = async (
+    bookingId: number,
+    endDatetime: string
+  ) => {
+    const now = new Date();
+    const endTime = new Date(endDatetime);
+
+    if (now <= endTime) {
+      alert("予約終了時刻を過ぎてからのみ削除できます。");
+      return;
+    }
+
+    try {
+      const success = await cancelBooking(bookingId);
+      if (!success) {
+        throw new Error("Failed to delete reservation");
+      }
+      router.reload();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleCancelBooking = async (
     bookingId: number,
     startDatetime: string
@@ -105,7 +135,6 @@ function BookingsPage() {
     const now = new Date();
     const startTime = new Date(startDatetime);
 
-    // 予約開始時間が現在時刻より30分以上先であることを確認
     if (startTime.getTime() - now.getTime() < 30 * 60 * 1000) {
       alert("予約開始の30分前にはキャンセルできません。");
       return;
@@ -129,8 +158,11 @@ function BookingsPage() {
       <ul>
         {bookings.map((booking) => {
           const now = new Date();
+          const startDateTime = new Date(booking.start_datetime);
           const endDateTime = new Date(booking.end_datetime);
           const isPastBooking = now > endDateTime;
+          const isWithin30Minutes =
+            startDateTime.getTime() - now.getTime() < 30 * 60 * 1000;
 
           return (
             <li
@@ -140,28 +172,36 @@ function BookingsPage() {
               <p>予約ID: {booking.booking_id}</p>
               <p>予約者: {booking.user?.user_name || "不明"}</p>
               <p>部屋名: {booking.room?.room_name || "不明"}</p>
-              <p className="text-black">
-                開始時刻: {formatDate(booking.start_datetime)}
-              </p>
-              <p className="text-black">
-                終了時刻: {formatDate(booking.end_datetime)}
-              </p>
+              <p>開始時刻: {formatDate(booking.start_datetime)}</p>
+              <p>終了時刻: {formatDate(booking.end_datetime)}</p>
               <p>参加者: {booking.participants?.join(", ") || "なし"}</p>
-              <button
-                onClick={() =>
-                  handleCancelBooking(
-                    booking.booking_id,
-                    booking.start_datetime
-                  )
-                }
-                className={`text-white font-bold py-2 px-4 rounded ${
-                  isPastBooking
-                    ? "bg-red-500 hover:bg-red-600"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } mt-2`}
-              >
-                {isPastBooking ? "削除" : "キャンセル"}
-              </button>
+              {isPastBooking && (
+                <button
+                  onClick={() =>
+                    handleDeleteBooking(
+                      booking.booking_id,
+                      booking.end_datetime
+                    )
+                  }
+                  className="text-white font-bold py-2 px-4 rounded bg-red-500 hover:bg-red-600 mt-2"
+                >
+                  削除
+                </button>
+              )}
+              {/* キャンセルボタン表示ロジック */}
+              {!isPastBooking && !isWithin30Minutes && (
+                <button
+                  onClick={() =>
+                    handleCancelBooking(
+                      booking.booking_id,
+                      booking.start_datetime
+                    )
+                  }
+                  className="text-white font-bold py-2 px-4 rounded bg-blue-500 hover:bg-blue-600 mt-2"
+                >
+                  キャンセル
+                </button>
+              )}
             </li>
           );
         })}
