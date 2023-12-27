@@ -25,6 +25,15 @@ const Header = () => {
               予約一覧
             </Link>
           </div>
+          <div className="pr-5">
+            {/* 管理ページへのリンクを追加 */}
+            <Link
+              href="http://localhost:8501/"
+              className="border border-white rounded text-white px-2 py-2"
+            >
+              管理ページ
+            </Link>
+          </div>
           <div>
             {auth.isLoggedIn ? ( // ログイン状態に応じてログアウトボタンを表示
               <button onClick={auth.logout} className="text-white">
