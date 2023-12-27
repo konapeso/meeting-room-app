@@ -275,7 +275,7 @@ function RoomDetailsPage() {
           </div>
         </div>
       </div>
-      <div className="w-1/2 p-4">
+      <div className="w-1/2 px-10 py-4">
         <h2 className="text-xl font-bold text-black">予約</h2>
         <form onSubmit={handleReserve} className="space-y-4">
           {/* 入力フィールドの共通スタイルを適用 */}
