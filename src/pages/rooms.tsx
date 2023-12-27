@@ -34,7 +34,7 @@ const RoomsPage = () => {
   }, [auth.isLoggedIn, router]);
 
   return (
-    <div className="flex flex-col p-10 mx-auto h-screen bg-gray-100">
+    <div className="flex flex-col p-10 mx-auto bg-gray-100">
       <h1 className="text-2xl font-bold text-center mb-6 text-black">
         会議室一覧
       </h1>
