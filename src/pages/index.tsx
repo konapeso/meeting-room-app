@@ -153,7 +153,7 @@ function BookingsPage() {
   };
 
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8 h-screen">
       <h1 className="text-2xl font-bold mb-6">予約一覧</h1>
       <ul>
         {bookings.map((booking) => {

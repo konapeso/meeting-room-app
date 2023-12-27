@@ -278,6 +278,7 @@ function RoomDetailsPage() {
       <div className="w-1/2 p-4">
         <h2 className="text-xl font-bold text-black">予約</h2>
         <form onSubmit={handleReserve} className="space-y-4">
+          {/* 入力フィールドの共通スタイルを適用 */}
           <div>
             <label htmlFor="date" className="block text-black">
               日付
@@ -287,7 +288,7 @@ function RoomDetailsPage() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="border rounded p-2 text-black"
+              className="border rounded p-2 w-full text-black"
             />
           </div>
           <div>
@@ -299,7 +300,7 @@ function RoomDetailsPage() {
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="border rounded p-2 text-black"
+              className="border rounded p-2 w-full text-black"
             />
           </div>
           <div>
@@ -311,9 +312,10 @@ function RoomDetailsPage() {
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="border rounded p-2 text-black"
+              className="border rounded p-2 w-full text-black"
             />
           </div>
+          {/* 参加者選択とゲストメールアドレス入力フィールドのスタイルを統一 */}
           <div className="mb-4">
             <label htmlFor="participants" className="block mb-2 text-black">
               参加者を選択
@@ -326,7 +328,7 @@ function RoomDetailsPage() {
                 label: user.user_name,
               }))}
               onChange={handleParticipantsChange}
-              className="text-base text-black border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              className="text-base w-full text-black border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             />
           </div>
           {room && room.room_type === "ゲストルーム" && (
@@ -339,7 +341,7 @@ function RoomDetailsPage() {
                 type="email"
                 value={guestEmail}
                 onChange={handleGuestEmailChange}
-                className="border rounded p-2  text-black"
+                className="border rounded p-2 w-full text-black"
               />
             </div>
           )}
